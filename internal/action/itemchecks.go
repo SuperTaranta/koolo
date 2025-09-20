@@ -3,7 +3,6 @@ package action
 import (
 	"fmt"
 	"github.com/hectorgimenez/d2go/pkg/data"
-	"github.com/hectorgimenez/d2go/pkg/data/item"
 	"github.com/hectorgimenez/d2go/pkg/data/stat"
 	"github.com/hectorgimenez/koolo/internal/context"
 )
@@ -176,4 +175,5 @@ func AreAllRequiredItemsFound() bool {
     }
     
     return true
+
 }
