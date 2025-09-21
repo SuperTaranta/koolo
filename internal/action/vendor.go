@@ -112,7 +112,9 @@ func shouldVisitVendor() bool {
 		return false
 	}
 
-	if ctx.BeltManager.ShouldBuyPotions() || town.ShouldBuyTPs() || town.ShouldBuyIDs() {
+	tpNeeded, _ := town.ShouldBuyTPs()
+	idNeeded, _ := town.ShouldBuyIDs()
+	if ctx.BeltManager.ShouldBuyPotions() || tpNeeded || idNeeded {
 		// Pass the embedded Context field: ctx.Context
 		if !hasTownPortalsInInventory(ctx.Context) {
 			ctx.Logger.Debug("Skipping vendor visit (buy consumables): No Town Portals available to get to town.")
