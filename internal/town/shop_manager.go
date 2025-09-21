@@ -67,20 +67,24 @@ func BuyConsumables(forceRefill bool) {
 		}
 
 		//Making sure Player has a tomb and gold to buy Tp's
-		if doWeBuy, _ := ShouldBuyTPs(); doWeBuy || forceRefill {
+		if ShouldBuyTPs() || forceRefill {
 			if _, found := ctx.Data.Inventory.Find(item.TomeOfTownPortal, item.LocationInventory); found {
 				if itm, found := ctx.Data.Inventory.Find(item.ScrollOfTownPortal, item.LocationVendor); found {
-
-					if ctx.Data.PlayerUnit.TotalPlayerGold() > 6000 {
+					tome, found := ctx.Data.Inventory.Find(item.TomeOfTownPortal, item.LocationInventory)
+					var qty int
+					if found {
+						qtyStat, _ := tome.FindStat(stat.Quantity, 0)
+						qty = qtyStat.Value
+					} else {
+						qty = 0
+					}
+					//ctx.Logger.Debug("Current TP Tome qty", "qty", qty)
+					if ctx.Data.PlayerUnit.TotalPlayerGold() > 6000 && qty < 20 {
 						buyFullStack(itm, -1) // -1 for irrelevant currentKeysInInventory
 						ctx.Logger.Debug("Filling TP Tome...")
-					} else if ctx.Data.PlayerUnit.TotalPlayerGold() > 100 {
-						_, qty := ShouldBuyIDs()
-						//ctx.Logger.Debug("Current TP Tome qty", "qty", qty)
-						if qty < 20 {
-							BuyItem(itm, 1)
-							ctx.Logger.Debug("Bought one TP...")
-						}
+					} else if ctx.Data.PlayerUnit.TotalPlayerGold() > 100 && qty < 20 {
+						BuyItem(itm, 1)
+						ctx.Logger.Debug("Bought one TP...")
 					} else {
 						ctx.Logger.Debug("Im too poor or full to buy TPs Tome...")
 					}
@@ -95,21 +99,26 @@ func BuyConsumables(forceRefill bool) {
 			}
 		}
 
-		if doWeBuy, _ := ShouldBuyIDs(); doWeBuy || forceRefill {
+		if ShouldBuyIDs() || forceRefill {
 			if _, found := ctx.Data.Inventory.Find(item.TomeOfIdentify, item.LocationInventory); found {
 				if itm, found := ctx.Data.Inventory.Find(item.ScrollOfIdentify, item.LocationVendor); found {
-					if ctx.Data.PlayerUnit.TotalPlayerGold() > 6000 {
-						buyFullStack(itm, -1) // -1 for irrelevant currentKeysInInventory
-						ctx.Logger.Debug("Filling IDs Tome...")
-					} else if ctx.Data.PlayerUnit.TotalPlayerGold() > 80 {
-						_, qty := ShouldBuyIDs()
-						//ctx.Logger.Debug("Current ID Tome qty", "qty", qty)
-						if qty < 20 {
-							BuyItem(itm, 1)
-							ctx.Logger.Debug("Bought one ID...")
-						}
+					tome, found := ctx.Data.Inventory.Find(item.TomeOfIdentify, item.LocationInventory)
+					var qty int
+					if found {
+						qtyStat, _ := tome.FindStat(stat.Quantity, 0)
+						qty = qtyStat.Value
 					} else {
-						ctx.Logger.Debug("Im to poor or full to buy IDs Tome...")
+						qty = 0
+					}
+					//ctx.Logger.Debug("Current ID Tome qty", "qty", qty)
+					if ctx.Data.PlayerUnit.TotalPlayerGold() > 6000 && qty < 20 {
+						buyFullStack(itm, -1) // -1 for irrelevant currentKeysInInventory
+						ctx.Logger.Debug("Filling ID Tome...")
+					} else if ctx.Data.PlayerUnit.TotalPlayerGold() > 80 && qty < 20 {
+						BuyItem(itm, 1)
+						ctx.Logger.Debug("Bought one ID...")
+					} else {
+						ctx.Logger.Debug("Im too poor or full to buy IDs Tome...")
 					}
 				}
 			} else if !found {
@@ -173,26 +182,26 @@ func findFirstMatch(itemNames ...string) (data.Item, bool, int) {
 	return data.Item{}, false, 0
 }
 
-func ShouldBuyTPs() (bool, int) {
+func ShouldBuyTPs() bool {
 	portalTome, found := context.Get().Data.Inventory.Find(item.TomeOfTownPortal, item.LocationInventory)
 	if !found {
-		return true, 0
+		return true
 	}
 
 	qty, found := portalTome.FindStat(stat.Quantity, 0)
 
-	return qty.Value < 5 || !found, qty.Value
+	return qty.Value < 5 || !found
 }
 
-func ShouldBuyIDs() (bool, int) {
+func ShouldBuyIDs() bool {
 	idTome, found := context.Get().Data.Inventory.Find(item.TomeOfIdentify, item.LocationInventory)
 	if !found {
-		return true, 0
+		return true
 	}
 
 	qty, found := idTome.FindStat(stat.Quantity, 0)
 
-	return qty.Value < 10 || !found, qty.Value
+	return qty.Value < 10 || !found
 }
 
 func ShouldBuyKeys() (int, bool) {
