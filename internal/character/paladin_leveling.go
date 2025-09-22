@@ -10,12 +10,12 @@ import (
 	"github.com/hectorgimenez/d2go/pkg/data"
 	"github.com/hectorgimenez/d2go/pkg/data/item"
 	"github.com/hectorgimenez/d2go/pkg/data/npc"
+	"github.com/hectorgimenez/d2go/pkg/data/quest"
 	"github.com/hectorgimenez/d2go/pkg/data/skill"
 	"github.com/hectorgimenez/d2go/pkg/data/stat"
 	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/context"
 	"github.com/hectorgimenez/koolo/internal/game"
-	"github.com/hectorgimenez/d2go/pkg/data/quest"
 )
 
 const (
@@ -184,11 +184,11 @@ func (s PaladinLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 	if lvl.Value >= 6 {
 		skillBindings = append(skillBindings, skill.Vigor)
 	}
-	
+
 	if lvl.Value >= 24 {
 		skillBindings = append(skillBindings, skill.BlessedHammer)
 	}
-	
+
 	if lvl.Value >= 30 {
 		skillBindings = append(skillBindings, skill.HolyShield)
 	}
@@ -265,30 +265,23 @@ func (s PaladinLeveling) SkillPoints() []skill.ID {
 	} else {
 		// Hammerdin build allocation for levels 24+
 		skillSequence = []skill.ID{
-			skill.Might, skill.HolyBolt, skill.Prayer, skill.Defiance, skill.BlessedAim,
-			skill.Cleansing, skill.Concentration, skill.Vigor, skill.Smite, skill.Charge,
-			skill.BlessedHammer,
-			skill.HolyShield,
-			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
-			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
-			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
-			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
-			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor,
-			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor,
-			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor,
-			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor,
+			skill.HolyBolt, skill.BlessedHammer, skill.Prayer, skill.Defiance, skill.Cleansing,
+			skill.Vigor, skill.Might, skill.BlessedAim, skill.Concentration, skill.BlessedAim,
 			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
-			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
-			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
-			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
+			skill.BlessedHammer, skill.Concentration, skill.Vigor, skill.BlessedHammer,
+			skill.Vigor, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.Vigor,
+			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
+			skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
+			skill.Smite, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer, skill.BlessedHammer,
+			skill.BlessedHammer, skill.Charge, skill.BlessedHammer, skill.Vigor, skill.Vigor,
+			skill.Vigor, skill.HolyShield, skill.Concentration, skill.Vigor, skill.Vigor,
+			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor,
+			skill.Vigor, skill.Vigor, skill.Vigor, skill.Vigor, skill.Concentration, skill.Concentration,
 			skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration,
 			skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration,
-			skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration,
-			skill.Concentration, skill.Concentration, skill.Concentration, skill.Concentration,
-			skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield,
-			skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield,
-			skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield, skill.HolyShield,
-			skill.HolyShield, skill.HolyShield, skill.HolyShield,
+			skill.Concentration, skill.Concentration, skill.Concentration, skill.BlessedAim, skill.BlessedAim,
+			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
+			skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim, skill.BlessedAim,
 		}
 	}
 
@@ -322,7 +315,7 @@ func (s PaladinLeveling) SkillPoints() []skill.ID {
 	}
 
 	skillsToAllocate := make([]skill.ID, 0)
-	
+
 	var uniqueSkills []skill.ID
 	seenSkills := make(map[skill.ID]bool)
 	for _, sk := range skillSequence {
@@ -648,5 +641,3 @@ func (s PaladinLeveling) KillBaal() error {
 	}
 
 }
-
-
