@@ -249,6 +249,8 @@ type CharacterCfg struct {
 			RescueAnya     bool `yaml:"rescueAnya"`
 			KillAncients   bool `yaml:"killAncients"`
 		} `yaml:"quests"`
+		GloveRun struct {
+		} `yaml:"gloverun"`
 	} `yaml:"game"`
 	Companion struct {
 		Enabled               bool   `yaml:"enabled"`
@@ -408,7 +410,7 @@ func Load() error {
 								os.WriteFile(filepath.Join(tempDir, file.Name()), sourceData, 0644)
 							}
 						}
-						
+
 						fallbackRules, _ := nip.ReadDir(tempDir + "\\")
 						rules = append(rules, fallbackRules...)
 						os.RemoveAll(tempDir)

@@ -85,6 +85,8 @@ func BuildRuns(cfg *config.CharacterCfg) (runs []Run) {
 			runs = append(runs, NewDriverCavern())
 		case config.EnduguRun:
 			runs = append(runs, NewEndugu())
+		case config.GloveRun:
+			runs = append(runs, NewGloveRun())
 		}
 	}
 
