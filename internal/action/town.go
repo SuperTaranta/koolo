@@ -19,22 +19,26 @@ func PreRun(firstRun bool) error {
 	// Just to make sure messages like TZ change or public game spam arent on the way
 	ClearMessages()
 	RefillBeltFromInventory()
+	_, isLevelingChar := ctx.Char.(context.LevelingCharacter)
 
-	if firstRun {
+	if firstRun && !isLevelingChar {
 		Stash(false)
 	}
 
 	UpdateQuestLog()
 
-	// Store items that need to be left unidentified
-	if HaveItemsToStashUnidentified() {
-		Stash(false)
+	if !isLevelingChar {
+		// Store items that need to be left unidentified
+		if HaveItemsToStashUnidentified() {
+			Stash(false)
+		}
 	}
 
 	// Identify - either via Cain or Tome
 	IdentifyAll(false)
 
-	_, isLevelingChar := ctx.Char.(context.LevelingCharacter)
+
+
 	if ctx.CharacterCfg.Game.Leveling.AutoEquip && isLevelingChar {
 		AutoEquip()
 	}

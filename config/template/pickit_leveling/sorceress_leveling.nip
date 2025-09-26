@@ -9,10 +9,11 @@
 [name] == tirrune # # [maxquantity] == 1
 [name] == thulrune # # [maxquantity] == 3
 [name] == amnrune # # [maxquantity] == 2
-[name] == shaelrune # # [maxquantity] == 2
+[name] == shaelrune # # [maxquantity] == 3
+[name] == eldrune # # [maxquantity] == 1
 [name] == nefrune # # [maxquantity] == 1
 [name] == lumrune # # [maxquantity] == 1
-[name] == korune # # [maxquantity] == 1
+[name] == korune # # [maxquantity] == 2
 [name] == helrune # # [maxquantity] == 5
 [name] == iorune # # [maxquantity] == 1
 [name] == lemrune
@@ -62,10 +63,12 @@
 [name] == fullrejuvenationpotion
 
 //Bases
+
 ([Name] == CrystalSword || [Name] == BroadSword) && [Quality] <= Superior && [Flag] != Ethereal # [Sockets] == 4 # [MaxQuantity] == 1 // spirit
+[Name] == Flail && [Quality] <= Superior && [Flag] != Ethereal # [Sockets] == 5 # [MaxQuantity] == 1 // CTA
 [type] == polearm && [quality] <= superior # [sockets] == 4 # [MaxQuantity] == 1 // any insight polearm
-[type] == polearm && [quality] <= superior && [flag] == ethereal && [Class] >= elite # [sockets] == 4 # [MaxQuantity] == 1
-[type] == polearm && [quality] <= superior && [flag] == ethereal && [Class] >= exceptional # [sockets] == 4 # [MaxQuantity] == 1
+[type] == polearm && [quality] <= superior && [flag] == ethereal && [Class] == elite # [sockets] == 4
+[type] == polearm && [quality] <= superior && [flag] == ethereal && [Class] == exceptional # [sockets] == 4 # [MaxQuantity] == 1
 [Type] == Armor && [Quality] <= Superior && [Flag] != Ethereal # [Sockets] == 2 # [MaxQuantity] == 1
 [Type] == Armor && [Quality] <= Superior && [Flag] != Ethereal # [Sockets] == 3 # [MaxQuantity] == 1
 [type] == helm && [Quality] <= Superior && [Flag] != Ethereal # [Sockets] == 2 # [MaxQuantity] == 1

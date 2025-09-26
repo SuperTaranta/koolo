@@ -137,6 +137,7 @@ type CharacterCfg struct {
 		MinGoldPickupThreshold int                   `yaml:"minGoldPickupThreshold"`
 		UseCainIdentify        bool                  `yaml:"useCainIdentify"`
 		InteractWithShrines    bool                  `yaml:"interactWithShrines"`
+		StopLevelingAt         int                   `yaml:"stopLevelingAt"`
 		ClearTPArea            bool                  `yaml:"clearTPArea"`
 		Difficulty             difficulty.Difficulty `yaml:"difficulty"`
 		RandomizeRuns          bool                  `yaml:"randomizeRuns"`

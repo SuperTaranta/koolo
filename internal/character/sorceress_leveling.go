@@ -109,20 +109,21 @@ var blizzardSkillSequence = []skill.ID{
 	skill.GlacialSpike, skill.GlacialSpike, //spent 17
 
 	skill.IceBlast, skill.IceBlast, skill.IceBlast, skill.IceBlast, skill.IceBlast, //spent 22
-	skill.IceBlast, skill.IceBlast, skill.IceBlast, skill.IceBlast, //spent all points that are available at level 24 (23+2 den of evil + rada)
+	skill.IceBlast, skill.IceBlast, skill.IceBlast, skill.IceBlast, // spent 26 (all points that are available at level 24 (23+2 den of evil + rada))
 
-	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard,
-	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.ColdMastery, skill.Blizzard,
+	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, //spent 31
+	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.ColdMastery, skill.Blizzard, //spent 36
 
-	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard,
-	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard,
+	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, //spent 41
+	skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, skill.Blizzard, //spent 46
 
-	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery,
-	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery,
-	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery,
+	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, //spent 50
+	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, //spent 55
+	skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, skill.ColdMastery, //spent 60
 	skill.ColdMastery, skill.ColdMastery,
 
 	skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike, // Total 10 points in Glacial Spike
+	skill.ChargedBolt, skill.Lightning, skill.ChainLightning, skill.EnergyShield,
 	skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike, skill.GlacialSpike,
 	skill.GlacialSpike, skill.GlacialSpike,
 
@@ -507,18 +508,18 @@ func (s SorceressLeveling) KillMonsterSequence(
 			if _, found := s.Data.KeyBindings.KeyBindingForSkill(skill.Blizzard); found {
 				if s.Data.PlayerUnit.States.HasState(state.Cooldown) {
 					if s.Data.PlayerUnit.Skills[skill.GlacialSpike].Level > 0 {
-						if _, found := s.Data.KeyBindings.KeyBindingForSkill(skill.GlacialSpike); found {
-							if s.isPlayerDead() {
-								return nil
-							}
-							if s.Data.PlayerUnit.Mode != mode.CastingSkill {
-								s.Logger.Debug("Blizzard on cooldown, attempting to cast Glacial Spike (Main).")
-								step.SecondaryAttack(skill.GlacialSpike, id, 1, glacialSpikeAttackOption)
-							} else {
-								s.Logger.Debug("Player is busy, waiting to cast Glacial Spike (Main).")
-								time.Sleep(time.Millisecond * 50)
-							}
+
+						if s.isPlayerDead() {
+							return nil
 						}
+						if s.Data.PlayerUnit.Mode != mode.CastingSkill {
+							s.Logger.Debug("Blizzard on cooldown, attempting to cast Glacial Spike (Main).")
+							step.PrimaryAttack(id, 2, true, glacialSpikeAttackOption)
+						} else {
+							s.Logger.Debug("Player is busy, waiting to cast Glacial Spike (Main).")
+							time.Sleep(time.Millisecond * 50)
+						}
+
 					}
 				} else {
 					if s.isPlayerDead() {
@@ -656,10 +657,6 @@ func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 	}
 
 	if level.Value >= 24 {
-		skillBindings = append(skillBindings, skill.GlacialSpike)
-	}
-
-	if level.Value >= 24 {
 		skillBindings = append(skillBindings, skill.Blizzard)
 	} else if s.Data.PlayerUnit.Skills[skill.Meteor].Level > 0 {
 		skillBindings = append(skillBindings, skill.Meteor)
@@ -669,13 +666,21 @@ func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 		skillBindings = append(skillBindings, skill.FireBall)
 	}
 
+	if s.Data.PlayerUnit.Skills[skill.EnergyShield].Level > 0 {
+		skillBindings = append(skillBindings, skill.EnergyShield)
+	}
+
+	if s.Data.PlayerUnit.Skills[skill.BattleCommand].Level > 0 {
+		skillBindings = append(skillBindings, skill.BattleCommand)
+	}
+
+	if s.Data.PlayerUnit.Skills[skill.BattleOrders].Level > 0 {
+		skillBindings = append(skillBindings, skill.BattleOrders)
+	}
+
 	mainSkill := skill.AttackSkill
-	if s.Data.PlayerUnit.Skills[skill.Blizzard].Level > 0 {
-		mainSkill = skill.Blizzard
-	} else if s.Data.PlayerUnit.Skills[skill.Meteor].Level > 0 {
-		mainSkill = skill.Meteor
-	} else if s.Data.PlayerUnit.Skills[skill.FireBall].Level > 0 {
-		mainSkill = skill.FireBall
+	if level.Value >= 24 {
+		mainSkill = skill.GlacialSpike
 	}
 
 	_, found := s.Data.Inventory.Find(item.TomeOfTownPortal, item.LocationInventory)

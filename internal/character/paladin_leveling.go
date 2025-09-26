@@ -203,6 +203,14 @@ func (s PaladinLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 		mainSkill = skill.Zeal
 	}
 
+	if s.Data.PlayerUnit.Skills[skill.BattleCommand].Level > 0 {
+		skillBindings = append(skillBindings, skill.BattleCommand)
+	}
+
+	if s.Data.PlayerUnit.Skills[skill.BattleOrders].Level > 0 {
+		skillBindings = append(skillBindings, skill.BattleOrders)
+	}
+
 	_, found := s.Data.Inventory.Find(item.TomeOfTownPortal, item.LocationInventory)
 	if found {
 		skillBindings = append(skillBindings, skill.TomeOfTownPortal)
