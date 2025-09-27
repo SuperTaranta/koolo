@@ -251,6 +251,14 @@ type CharacterCfg struct {
 			KillAncients   bool `yaml:"killAncients"`
 		} `yaml:"quests"`
 		GloveRun struct {
+			BowAndCrossbow2  bool `yaml:"bowAndCrossbow2"`
+			BowAndCrossbow3  bool `yaml:"bowAndCrossbow3"`
+			PassiveAndMagic2 bool `yaml:"passiveAndMagic2"`
+			PassiveAndMagic3 bool `yaml:"passiveAndMagic3"`
+			JavAndSpear2     bool `yaml:"javAndSpear2"`
+			JavAndSpear3     bool `yaml:"javAndSpear3"`
+			MartialArts2     bool `yaml:"martialArts2"`
+			MartialArts3     bool `yaml:"martialArts3"`
 		} `yaml:"gloverun"`
 	} `yaml:"game"`
 	Companion struct {

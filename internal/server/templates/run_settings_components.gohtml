@@ -188,6 +188,19 @@
     </fieldset>
 {{ end }}
 
+{{ define "gloverun" }}
+    <fieldset>
+        <label><input type="checkbox" name="gameGloveRunBowAndCrossBow2" {{ if .Config.Game.GloveRun.BowAndCrossbow2 }}checked{{ end }}> +2 Bow and Crossbow Skills</label>
+        <label><input type="checkbox" name="gameGloveRunBowAndCrossbow3" {{ if .Config.Game.GloveRun.BowAndCrossbow3 }}checked{{ end }}> +2 Bow and Crossbow Skills</label>
+        <label><input type="checkbox" name="gameGloveRunPassiveAndMagic2" {{ if .Config.Game.GloveRun.PassiveAndMagic2 }}checked{{ end }}> +2 Passive and Magic Skills</label>
+        <label><input type="checkbox" name="gameGloveRunPassiveAndMagic3" {{ if .Config.Game.GloveRun.PassiveAndMagic3 }}checked{{ end }}> +3 Passive and Magic Skills</label>
+        <label><input type="checkbox" name="gameGloveRunJavAndSpear2" {{ if .Config.Game.GloveRun.JavAndSpear2 }}checked{{ end }}> +2 Javelin and Spear Skills</label>
+        <label><input type="checkbox" name="gameGloveRunJavAndSpear3" {{ if .Config.Game.GloveRun.JavAndSpear3 }}checked{{ end }}> +3 Javelin and Spear Skills</label>
+        <label><input type="checkbox" name="gameGloveRunMartialArts2" {{ if .Config.Game.GloveRun.MartialArts2 }}checked{{ end }}> +2 Martial Arts Skills Skills</label>
+        <label><input type="checkbox" name="gameGloveRunMartialArts3" {{ if .Config.Game.GloveRun.MartialArts3 }}checked{{ end }}> +3 Martial Arts Skills Skills</label>
+    </fieldset>
+{{ end }}
+
 {{ define "terror_zone" }}
     {{$topLevelContext := .}}
     <fieldset>

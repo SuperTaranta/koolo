@@ -26,14 +26,9 @@ var anyaLocation = data.Position{
 	Y: 5119,
 }
 
-const (
-	//Other Possible Prefixes
-	//1182 - Archer's +3 To Bow And Crossbow Skills
-	//1185 - Athlete's +3 Passive And Magic Skills
-	//1260 - Kenshi's +3 To Martial Arts
-	magicPrefixID = 1188 //Lancer's +3 Javelin Skills
-	magicSuffixID = 170
-)
+var magicPrefixIDs = []int{}
+
+const magicSuffixID = 170 //20% Increased Attack Speed
 
 type GloveRun struct {
 	ctx *context.Status
@@ -50,6 +45,37 @@ func (g GloveRun) Name() string {
 }
 
 func (g GloveRun) Run() error {
+	// Add specific prefix IDs based on enabled GloveRun options
+	if g.ctx.CharacterCfg.Game.GloveRun.BowAndCrossbow2 {
+		magicPrefixIDs = append(magicPrefixIDs, 1181) // Bowyer's +2 to Bow and Crossbow Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.BowAndCrossbow3 {
+		magicPrefixIDs = append(magicPrefixIDs, 1182) //Archer's +3 To Bow And Crossbow Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.PassiveAndMagic2 {
+		magicPrefixIDs = append(magicPrefixIDs, 1184) // Gymnast's +2 Passive And Magic Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.PassiveAndMagic3 {
+		magicPrefixIDs = append(magicPrefixIDs, 1185) // Athlete's +3 Passive And Magic Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.JavAndSpear2 {
+		magicPrefixIDs = append(magicPrefixIDs, 1187) // Spearmaiden's +2 Javelin Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.JavAndSpear3 {
+		magicPrefixIDs = append(magicPrefixIDs, 1188) // Lancer's +3 Javelin Skills
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.MartialArts2 {
+		magicPrefixIDs = append(magicPrefixIDs, 1259) // Sensei's +2 To Martial Arts
+	}
+	if g.ctx.CharacterCfg.Game.GloveRun.MartialArts3 {
+		magicPrefixIDs = append(magicPrefixIDs, 1260) // Kenshi's +3 To Martial Arts
+	}
+
+	// If no prefixes are selected, skip the run
+	if magicPrefixIDs == nil {
+		return nil
+	}
+
 	// 0. Check if Player has Money Need to add this Check
 
 	// 1. Check if in Nightmare difficulty
@@ -73,22 +99,24 @@ func (g GloveRun) Run() error {
 		_ = action.MoveToCoords(anyaLocation)
 	}
 
+	found := false
 	// Loop until gloves are found and bought
-	for {
-		found := false
+	for !found {
 		action.InteractNPC(vendorNPC)
 		if vendorNPC == npc.Drehya {
 			g.ctx.HID.KeySequence(win.VK_HOME, win.VK_DOWN, win.VK_RETURN)
 		}
 		if g.ctx.Data.OpenMenus.NPCShop {
 			for _, itm := range g.ctx.Data.Inventory.ByLocation(item.LocationVendor) {
-				if itm.HasPrefix(magicPrefixID) && itm.HasSuffix(magicSuffixID) {
-					g.ctx.Logger.Info("Found gloves to buy", "item", itm.Name)
-					BuyItem(itm, 1)
-					found = true
-					break
+				for _, prefixID := range magicPrefixIDs {
+					if itm.HasPrefix(int16(prefixID)) && itm.HasSuffix(magicSuffixID) {
+						g.ctx.Logger.Info("Found gloves to buy", "item", itm.Name)
+						BuyItem(itm, 1)
+						found = true
+						break
+					}
 				}
-				g.ctx.Logger.Info("Found wrong item to buy", "item", itm.Name)
+				//g.ctx.Logger.Info("Found wrong item to buy", "item", itm.Name)
 			}
 		}
 		if found {
