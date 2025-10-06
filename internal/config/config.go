@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/hectorgimenez/d2go/pkg/data"
@@ -24,6 +25,7 @@ import (
 )
 
 var (
+	cfgMux     sync.RWMutex
 	Koolo      *KooloCfg
 	Characters map[string]*CharacterCfg
 	Version    = "dev"
@@ -138,6 +140,7 @@ type CharacterCfg struct {
 		UseCainIdentify        bool                  `yaml:"useCainIdentify"`
 		InteractWithShrines    bool                  `yaml:"interactWithShrines"`
 		StopLevelingAt         int                   `yaml:"stopLevelingAt"`
+		IsNonLadderChar        bool                  `yaml:"isNonLadderChar"`
 		ClearTPArea            bool                  `yaml:"clearTPArea"`
 		Difficulty             difficulty.Difficulty `yaml:"difficulty"`
 		RandomizeRuns          bool                  `yaml:"randomizeRuns"`
@@ -294,6 +297,23 @@ type CharacterCfg struct {
 
 type BeltColumns [4]string
 
+func GetCharacter(name string) (*CharacterCfg, bool) {
+	cfgMux.RLock()
+	defer cfgMux.RUnlock()
+	charCfg, exists := Characters[name]
+	return charCfg, exists
+}
+
+func GetCharacters() map[string]*CharacterCfg {
+	cfgMux.RLock()
+	defer cfgMux.RUnlock()
+	copy := make(map[string]*CharacterCfg, len(Characters))
+	for k, v := range Characters {
+		copy[k] = v
+	}
+	return copy
+}
+
 func (bm BeltColumns) Total(potionType data.PotionType) int {
 	typeString := ""
 	switch potionType {
@@ -316,6 +336,8 @@ func (bm BeltColumns) Total(potionType data.PotionType) int {
 }
 
 func Load() error {
+	cfgMux.Lock()
+	defer cfgMux.Unlock()
 	Characters = make(map[string]*CharacterCfg)
 
 	cwd, err := os.Getwd()

@@ -33,6 +33,8 @@ func (a Leveling) act2() error {
 
 	running = true
 
+	action.UpdateQuestLog()
+
 	// Buy a 12 slot belt if we don't have one
 	if err := buyAct2Belt(a.ctx); err != nil {
 		return err
@@ -42,8 +44,10 @@ func (a Leveling) act2() error {
 
 	action.VendorRefill(true, true)
 
+	lvl, _ := a.ctx.Data.PlayerUnit.FindStat(stat.Level, 0)
+
 	// Priority 0: Check if Act 2 is fully completed (Seven Tombs quest completed)
-	if a.ctx.Data.Quests[quest.Act2TheSevenTombs].Completed() {
+	if a.ctx.Data.Quests[quest.Act2TheSevenTombs].Completed() && lvl.Value >= 24 {
 		a.ctx.Logger.Info("Act 2, The Seven Tombs quest completed. Moving to Act 3.")
 		action.MoveToCoords(data.Position{
 			X: 5195,
