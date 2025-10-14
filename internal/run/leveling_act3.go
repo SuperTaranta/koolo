@@ -1,6 +1,7 @@
 package run
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hectorgimenez/d2go/pkg/data"
@@ -25,6 +26,8 @@ func (a Leveling) act3() error {
 		return nil
 	}
 
+	action.UpdateQuestLog()
+
 	// Try to find Hratli at pier, if he's there, talk to him, so he will move to the normal position later
 	hratli, found := a.ctx.Data.Monsters.FindOne(npc.Hratli, data.MonsterTypeNone)
 	if found {
@@ -33,7 +36,7 @@ func (a Leveling) act3() error {
 
 	running = true
 
-	action.VendorRefill(true, true)
+	action.VendorRefill(false, true)
 
 	_, potionFound := a.ctx.Data.Inventory.Find("PotionOfLife", item.LocationInventory)
 	q := a.ctx.Data.Quests[quest.Act3TheGoldenBird]
@@ -56,6 +59,15 @@ func (a Leveling) act3() error {
 		return nil
 	}
 
+	if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Hell {
+
+		NewMausoleum().Run()
+		err := action.WayPoint(area.KurastDocks)
+		if err != nil {
+			a.ctx.Logger.Error(fmt.Sprintf("Waypoint to Lut Gholein failed after farming: %s.", err.Error()))
+		}
+	}
+
 	if a.ctx.Data.Quests[quest.Act3TheGuardian].Completed() {
 
 		a.ctx.Logger.Info("Attempting to reach Act 4 via The Pandemonium Fortress waypoint.")
@@ -65,7 +77,6 @@ func (a Leveling) act3() error {
 			return nil
 		} else {
 			a.ctx.Logger.Info("Could not use waypoint to The Pandemonium Fortress. Falling back to manual portal entry.")
-			// The rest of the original code follows here
 		}
 
 		// Use waypoint to DuranceOfHateLevel2

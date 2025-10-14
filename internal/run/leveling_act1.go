@@ -28,6 +28,8 @@ func (a Leveling) act1() error {
 		return nil
 	}
 
+	action.UpdateQuestLog()
+
 	// Check player level and set configuration for level 1
 	lvl, _ := a.ctx.Data.PlayerUnit.FindStat(stat.Level, 0)
 	if lvl.Value == 1 {
@@ -40,7 +42,7 @@ func (a Leveling) act1() error {
 
 	// Refill potions and ensure bindings for players level > 1
 	if lvl.Value > 1 {
-		action.VendorRefill(true, true)
+		action.VendorRefill(false, true)
 		if err := action.EnsureSkillBindings(); err != nil {
 			a.ctx.Logger.Error(fmt.Sprintf("Error ensuring skill bindings after vendor refill: %s", err.Error()))
 		}
@@ -48,9 +50,17 @@ func (a Leveling) act1() error {
 
 	// --- Quest and Farming Logic ---
 
-	if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Hell && lvl.Value < 80 {
+	// in case we're farming already, directly skip to a4 (we end up in a1 if we die while farming mausoleum)
+	if a.ctx.Data.Quests[quest.Act1SistersToTheSlaughter].Completed() {
 
-		return NewMausoleum().Run()
+		a.ctx.Logger.Info("Attempting to reach Act 4 via The Pandemonium Fortress waypoint.")
+		err := action.WayPoint(area.ThePandemoniumFortress)
+		if err == nil {
+			a.ctx.Logger.Info("Successfully reached Act 4 via waypoint.")
+			return nil
+		} else {
+			a.ctx.Logger.Info("Could not use waypoint to The Pandemonium Fortress. Falling back to manual portal entry.")
+		}
 	}
 
 	// Farming for low gold
@@ -61,16 +71,18 @@ func (a Leveling) act1() error {
 		if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Hell {
 
 			if a.ctx.Data.PlayerUnit.TotalPlayerGold() < 5000 {
-
+				//set clearpathdistance high in eco run (also for sorc as we must assume, she may not be allowed to tele)
 				a.ctx.CharacterCfg.Character.ClearPathDist = 20
 
-				if err := config.SaveSupervisorConfig(a.ctx.CharacterCfg.ConfigFolderName, a.ctx.CharacterCfg); err != nil {
-					a.ctx.Logger.Error(fmt.Sprintf("Failed to save character configuration: %s", err.Error()))
-				}
 			}
 
 			return NewMausoleum().Run()
 		}
+	}
+
+	if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Hell && lvl.Value <= 75 {
+
+		return NewMausoleum().Run()
 	}
 
 	if !a.ctx.Data.Quests[quest.Act1DenOfEvil].Completed() && a.ctx.CharacterCfg.Game.Difficulty != difficulty.Hell {
@@ -146,7 +158,7 @@ func (a Leveling) act1() error {
 	}
 
 	// Countess farming for runes
-	if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Normal && a.ctx.Data.Quests[quest.Act1TheSearchForCain].Completed() && lvl.Value >= 6 && lvl.Value < 12 {
+	if a.ctx.CharacterCfg.Game.Difficulty == difficulty.Normal && a.ctx.Data.Quests[quest.Act1TheSearchForCain].Completed() && lvl.Value >= 6 && (lvl.Value < 12 || lvl.Value < 16 && (a.ctx.CharacterCfg.Character.Class == "paladin" || a.ctx.CharacterCfg.Character.Class == "necromancer")) {
 		a.ctx.Logger.Info("Farming Countess for runes.")
 		if a.ctx.CharacterCfg.Character.Class == "sorceress_leveling" {
 			a.ctx.CharacterCfg.Character.ClearPathDist = 15
@@ -186,10 +198,23 @@ func (a Leveling) act1() error {
 
 // setupLevelOneConfig centralizes the configuration logic for a new character.
 func (a Leveling) setupLevelOneConfig() {
-	enabledRunewordRecipes := []string{"Stealth", "Ancients' Pledge", "Lore", "Insight", "Spirit", "Smoke", "Treachery", "Heart of the Oak", "Call to Arms", "Bulwark", "Hustle"}
+	enabledRunewordRecipes := []string{"Stealth", "Ancients' Pledge", "Lore", "Insight", "Spirit", "Smoke", "Treachery", "Heart of the Oak", "Call to Arms"}
+
+	if !a.ctx.CharacterCfg.Game.IsNonLadderChar {
+		enabledRunewordRecipes = append(enabledRunewordRecipes, "Bulwark", "Hustle")
+		a.ctx.Logger.Info("Ladder character detected. Adding Bulwark and Hustle runewords.")
+	}
 
 	if a.ctx.CharacterCfg.Character.Class == "paladin" {
 		enabledRunewordRecipes = append(enabledRunewordRecipes, "Steel")
+	}
+
+	if a.ctx.CharacterCfg.Character.Class == "sorceress_leveling" {
+		a.ctx.CharacterCfg.Character.ClearPathDist = 7
+		a.ctx.CharacterCfg.Character.SorceressLeveling.UseMoatTrick = true
+		a.ctx.CharacterCfg.Character.SorceressLeveling.UseStaticOnMephisto = true
+	} else {
+		a.ctx.CharacterCfg.Character.ClearPathDist = 15
 	}
 
 	a.ctx.CharacterCfg.Game.Difficulty = difficulty.Normal
@@ -207,13 +232,6 @@ func (a Leveling) setupLevelOneConfig() {
 	a.ctx.CharacterCfg.Health.RejuvPotionAtLife = 0
 	a.ctx.CharacterCfg.Health.ChickenAt = 7
 	a.ctx.CharacterCfg.Gambling.Enabled = true
-
-	if a.ctx.CharacterCfg.Character.Class == "sorceress_leveling" {
-		a.ctx.CharacterCfg.Character.ClearPathDist = 7
-	} else {
-		a.ctx.CharacterCfg.Character.ClearPathDist = 15
-	}
-
 	a.ctx.CharacterCfg.Health.MercRejuvPotionAt = 40
 	a.ctx.CharacterCfg.Health.MercChickenAt = 0
 	a.ctx.CharacterCfg.Health.MercHealingPotionAt = 25
@@ -287,7 +305,12 @@ func (a Leveling) AdjustDifficultyConfig() {
 			a.ctx.CharacterCfg.Health.MercRejuvPotionAt = 40
 			a.ctx.CharacterCfg.Health.HealingPotionAt = 90
 			a.ctx.CharacterCfg.Health.ChickenAt = 40
-			a.ctx.CharacterCfg.Character.ClearPathDist = 15
+			if a.ctx.CharacterCfg.Character.Class == "sorceress_leveling" {
+				// don't engage when teleing and running oom
+				a.ctx.CharacterCfg.Character.ClearPathDist = 0
+			} else {
+				a.ctx.CharacterCfg.Character.ClearPathDist = 15
+			}
 
 		}
 		if err := config.SaveSupervisorConfig(a.ctx.CharacterCfg.ConfigFolderName, a.ctx.CharacterCfg); err != nil {
