@@ -400,7 +400,7 @@ func (s *HttpServer) getStatusData() IndexData {
 		// Enrich with lightweight live character overview for UI
 		if data := s.manager.GetData(supervisorName); data != nil {
 			// Defaults
-			var lvl, exp, life, maxLife, mana, maxMana, mf, gf int
+			var lvl, exp, life, maxLife, mana, maxMana, mf, gf, gold int
 			var lastExp, nextExp int
 			var fr, cr, lr, pr int
 			var mfr, mcr, mlr, mpr int
@@ -435,6 +435,9 @@ func (s *HttpServer) getStatusData() IndexData {
 			if v, ok := data.PlayerUnit.FindStat(stat.GoldFind, 0); ok {
 				gf = v.Value
 			}
+
+			gold = data.PlayerUnit.TotalPlayerGold()
+
 			if v, ok := data.PlayerUnit.FindStat(stat.FireResist, 0); ok {
 				fr = v.Value
 			}
@@ -522,6 +525,7 @@ func (s *HttpServer) getStatusData() IndexData {
 				ColdResist:      cr,
 				LightningResist: lr,
 				PoisonResist:    pr,
+				Gold:            gold,
 			}
 		}
 
@@ -1141,6 +1145,18 @@ func (s *HttpServer) characterSettings(w http.ResponseWriter, r *http.Request) {
 			cfg.Character.MosaicSin.UseFistsOfFire = r.Form.Has("mosaicUseFistsOfFire")
 		}
 
+		// Blizzard Sorc specific options
+		if cfg.Character.Class == "sorceress" {
+			cfg.Character.BlizzardSorceress.UseMoatTrick = r.Form.Has("useMoatTrick")
+			cfg.Character.BlizzardSorceress.UseStaticOnMephisto = r.Form.Has("useStaticOnMephisto")
+		}
+
+		// Sorceress Leveling specific options
+		if cfg.Character.Class == "sorceress_leveling" {
+			cfg.Character.SorceressLeveling.UseMoatTrick = r.Form.Has("useMoatTrick")
+			cfg.Character.SorceressLeveling.UseStaticOnMephisto = r.Form.Has("useStaticOnMephisto")
+		}
+
 		for y, row := range cfg.Inventory.InventoryLock {
 			for x := range row {
 				if r.Form.Has(fmt.Sprintf("inventoryLock[%d][%d]", y, x)) {
@@ -1498,4 +1514,3 @@ func (s *HttpServer) resetDroplogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{"status": "ok", "dir": dir, "removed": removed})
 }
-
