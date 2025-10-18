@@ -9,6 +9,7 @@ const (
 	MausoleumRun        Run = "mausoleum"
 	SummonerRun         Run = "summoner"
 	DurielRun           Run = "duriel"
+	MuleRun             Run = "mule"
 	MephistoRun         Run = "mephisto"
 	TravincalRun        Run = "travincal"
 	EldritchRun         Run = "eldritch"
@@ -41,6 +42,7 @@ var AvailableRuns = map[Run]interface{}{
 	MausoleumRun:        nil,
 	SummonerRun:         nil,
 	DurielRun:           nil,
+	MuleRun:             nil,
 	MephistoRun:         nil,
 	TravincalRun:        nil,
 	EldritchRun:         nil,
