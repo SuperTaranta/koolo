@@ -125,6 +125,15 @@ game:
   leveling:
     ensurePointsAllocation: true # Bot will allocate skill and stat points by itself or perform stat/skill reset. Set to false if you do NOT want it
     ensureKeyBinding: true       # Bot will set key bindings by itself. Set to false if you want to do it manually
+  gloverun:
+    bowAndCrossbow2: true # +2 Bow & Crossbow Skills
+    bowAndCrossbow3: true # +3
+    passiveAndMagic2: true # +2 Passive & Magic Skills
+    passiveAndMagic3: true # +3
+    javAndSpear2: true # +2 Javelin & Spear Skills
+    javAndSpear3: true # +3
+    martialArts2: true # +2 Martial Arts Skills
+    martialArts3: true # +3
   terror_zone:
     focusOnElitePacks: false # Will clear only Elite monsters
     skipOnImmunities: [ ] # Allowed values: cold, fire, light, poison
