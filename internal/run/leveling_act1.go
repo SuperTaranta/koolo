@@ -85,9 +85,44 @@ func (a Leveling) act1() error {
 		return NewMausoleum().Run()
 	}
 
+	//Pre Den of Evil Quest - Speed Run
+	// If we have a Tome/Scroll of teleportation, go to Den of Evil, cast a portal,
+	// then use Stony Field waypoint, return to town, use portal and complete the quest.
 	if !a.ctx.Data.Quests[quest.Act1DenOfEvil].Completed() && a.ctx.CharacterCfg.Game.Difficulty != difficulty.Hell {
-		a.ctx.Logger.Debug("Completing Den of Evil")
-		return NewQuests().clearDenQuest()
+		// check inventory and stash for portal items
+		havePortal := false
+		for _, it := range a.ctx.Data.Inventory.ByLocation(item.LocationInventory, item.LocationStash, item.LocationSharedStash) {
+			n := string(it.Name)
+			// include common name variants
+			if n == "Tome of Town Portal" || n == "Scroll of Town Portal" {
+				havePortal = true
+				break
+			}
+		}
+
+		if havePortal {
+			a.ctx.Logger.Info("Portal item found. Going to Den of Evil to cast portal and complete the quest.")
+			// move to the Den
+			if err := action.MoveToArea(area.DenOfEvil); err != nil {
+				a.ctx.Logger.Error(fmt.Sprintf("Failed to move to Den of Evil: %s", err.Error()))
+			} else {
+				// attempt to cast a portal (action.CastPortal is expected to exist in the codebase)
+				if err := step.OpenPortal(); err != nil {
+					a.ctx.Logger.Error(fmt.Sprintf("Failed to cast portal in Den of Evil: %s", err.Error()))
+				} else {
+					// after portal is cast, go to Stony Field waypoint and return to town
+					if err := action.WayPoint(area.StonyField); err != nil {
+						a.ctx.Logger.Error(fmt.Sprintf("Failed to use Stony Field waypoint: %s", err.Error()))
+					}
+					action.ReturnTown()
+					a.ctx.Logger.Debug("Returning to Town")
+					action.UsePortalInTown()
+					// finalize Den of Evil quest
+					a.ctx.Logger.Debug("Completing Den of Evil")
+					return NewQuests().clearDenQuest()
+				}
+			}
+		}
 	}
 
 	// Farming for normal difficulty below 300 gold
