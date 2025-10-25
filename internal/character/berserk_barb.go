@@ -29,6 +29,10 @@ const (
 	maxAttackAttempts = 20
 )
 
+func (s Berserker) ShouldIgnoreMonster(m data.Monster) bool {
+	return false
+}
+
 func (s *Berserker) CheckKeyBindings() []skill.ID {
 	requireKeybindings := []skill.ID{skill.BattleCommand, skill.BattleOrders, skill.Shout, skill.FindItem, skill.Berserk}
 	missingKeybindings := []skill.ID{}
@@ -54,8 +58,9 @@ func (s *Berserker) KillMonsterSequence(
 	monsterSelector func(d game.Data) (data.UnitID, bool),
 	skipOnImmunities []stat.Resist,
 ) error {
-
 	for attackAttempts := 0; attackAttempts < maxAttackAttempts; attackAttempts++ {
+		context.Get().PauseIfNotPriority()
+
 		id, found := monsterSelector(*s.Data)
 		if !found {
 			if !s.isKillingCouncil.Load() {
@@ -141,6 +146,7 @@ func (s *Berserker) FindItemOnNearbyCorpses(maxRange int) {
 
 		time.Sleep(time.Millisecond * 300)
 	}
+
 	s.SwapToSlot(0)
 }
 
@@ -329,6 +335,7 @@ func (s *Berserker) killAllCouncilMembers() error {
 	context.Get().DisableItemPickup()
 	for {
 		if !s.anyCouncilMemberAlive() {
+			s.Logger.Info("All council members have been defeated!!!!")
 			return nil
 		}
 

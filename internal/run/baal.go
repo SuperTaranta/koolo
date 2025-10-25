@@ -107,8 +107,15 @@ func (s *Baal) Run() error {
 		if _, found := s.ctx.Data.Monsters.FindOne(npc.BaalsMinion, data.MonsterTypeMinion); found {
 			lastWave = true
 		}
+
+		if baalPortal, foundPortal := s.ctx.Data.Objects.FindOne(object.BaalsPortal); foundPortal {
+			if baalPortal.Selectable {
+				lastWave = true
+			}
+		}
+
 		// Return to throne position between waves
-		_ = action.ClearAreaAroundPosition(baalThronePosition, 50, data.MonsterAnyFilter())
+		err = action.ClearAreaAroundPosition(baalThronePosition, 50, data.MonsterAnyFilter())
 		if err != nil {
 			return err
 		}
@@ -116,7 +123,7 @@ func (s *Baal) Run() error {
 		action.MoveToCoords(baalThronePosition)
 
 		// Preattack between waves (inspired by kolbot baal.js)
-		s.preAttackBaalWaves()
+		//s.preAttackBaalWaves() //tempoarily disabled until fixed
 	}
 
 	// Let's be sure everything is dead
