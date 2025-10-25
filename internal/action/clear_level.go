@@ -30,16 +30,18 @@ func ClearCurrentLevel(openChests bool, filter data.MonsterFilter) error {
 
 	// We can make this configurable later, but 20 is a good starting radius.
 	const pickupRadius = 20
-
 	rooms := ctx.PathFinder.OptimizeRoomsTraverseOrder()
 	for _, r := range rooms {
+		if errDeath := checkPlayerDeath(ctx); errDeath != nil {
+			return errDeath
+		}
 		// First, clear the room of monsters
 		err := clearRoom(r, filter)
 		if err != nil {
 			ctx.Logger.Warn("Failed to clear room: %v", err)
 		}
 
-		ctx.Logger.Debug(fmt.Sprintf("Clearing room complete, attempting to pickup items in a radius of %d", pickupRadius))
+		//ctx.Logger.Debug(fmt.Sprintf("Clearing room complete, attempting to pickup items in a radius of %d", pickupRadius))
 		err = ItemPickup(pickupRadius)
 		if err != nil {
 			ctx.Logger.Warn("Failed to pickup items", slog.Any("error", err))
@@ -64,29 +66,6 @@ func ClearCurrentLevel(openChests bool, filter data.MonsterFilter) error {
 						ctx.Logger.Warn("Failed interacting with chest", slog.Any("error", err))
 					}
 					utils.Sleep(500) // Add small delay to allow the game to open the chest and drop the content
-				}
-
-				// Interact with desired shrine types
-				if ctx.CharacterCfg.Game.InteractWithShrines && o.IsShrine() && o.Selectable {
-					for _, shrineType := range interactableShrines {
-						if o.Shrine.ShrineType == shrineType {
-							ctx.Logger.Debug(fmt.Sprintf("Found %s shrine. attempting to interact. Name=%s. ID=%v UnitID=%v Pos=%v,%v Area='%s' InteractType=%v", o.Desc().Name, o.Desc().Name, o.ID, o.Position.X, o.Position.Y, ctx.Data.PlayerUnit.Area.Area().Name, o.InteractType))
-							err = MoveToCoords(o.Position)
-							if err != nil {
-								ctx.Logger.Warn("Failed moving to shrine", slog.Any("error", err))
-								continue
-							}
-							err = InteractObject(o, func() bool {
-								shrine, _ := ctx.Data.Objects.FindByID(o.ID)
-								return !shrine.Selectable
-							})
-							if err != nil {
-								ctx.Logger.Warn("Failed interacting with shrine", slog.Any("error", err))
-							}
-							utils.Sleep(500)
-							break
-						}
-					}
 				}
 			}
 		}
@@ -114,18 +93,33 @@ func clearRoom(room data.Room, filter data.MonsterFilter) error {
 	}
 
 	for {
+		ctx.PauseIfNotPriority()
+
+		if err := checkPlayerDeath(ctx); err != nil {
+			return err
+		}
+
 		monsters := getMonstersInRoom(room, filter)
 		if len(monsters) == 0 {
 			return nil
 		}
 
 		// Check if there are monsters that can summon new monsters, and kill them first
-		targetMonster := monsters[0]
+		targetMonster := data.Monster{}
 		for _, m := range monsters {
-			if m.IsMonsterRaiser() {
-				targetMonster = m
-				break
+			if !ctx.Char.ShouldIgnoreMonster(m) {
+				if m.IsMonsterRaiser() {
+					targetMonster = m
+					break
+				} else if targetMonster.UnitID == 0 {
+					targetMonster = m
+				}
 			}
+		}
+
+		if targetMonster.UnitID == 0 {
+			//No valid targets, done
+			return nil
 		}
 
 		_, _, mPathFound := ctx.PathFinder.GetPath(targetMonster.Position)

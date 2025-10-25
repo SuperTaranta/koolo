@@ -89,6 +89,8 @@ func BuildRuns(cfg *config.CharacterCfg, runs []string) (builtRuns []Run) {
 			builtRuns = append(builtRuns, NewEndugu())
 		case string(config.GloveRun):
 			builtRuns = append(builtRuns, NewGloveRun())
+		case string(config.FireEyeRun):
+			builtRuns = append(builtRuns, NewFireEye())
 		}
 	}
 
