@@ -289,6 +289,6 @@
 // sunders
 [name] == grandcharm && [quality] == unique # ([fireresist] + [coldresist] + [lightresist]) == -70 //|| [magicresist] - 4294967296 == -45 || [physicalresist] - 4294967296 == -10        // perfect
 [name] == grandcharm && [quality] == unique # ([fireresist] + [coldresist] + [lightresist]) >= -90 //|| [magicresist] - 4294967296 == -45 || [physicalresist] - 4294967296 == -10        // any 
-[name] == grandcharm && [quality] == unique # ([fireresist]) >= -90         // any fire
-[name] == grandcharm && [quality] == unique # ([coldresist]) >= -90         // any cold
-[name] == grandcharm && [quality] == unique # ([lightresist]) >= -90        // any light
+//[name] == grandcharm && [quality] == unique # ([fireresist]) >= -90         // any fire
+//[name] == grandcharm && [quality] == unique # ([coldresist]) >= -90         // any cold
+//[name] == grandcharm && [quality] == unique # ([lightresist]) >= -90        // any light
