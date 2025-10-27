@@ -32,6 +32,7 @@ const (
 	DrifterCavernRun    Run = "drifter_cavern"
 	SpiderCavernRun     Run = "spider_cavern"
 	EnduguRun           Run = "endugu"
+	UtilityRun          Run = "utility"
 	GloveRun            Run = "gloverun"
 	FireEyeRun          Run = "fire_eye"
 )
@@ -66,6 +67,7 @@ var AvailableRuns = map[Run]interface{}{
 	DrifterCavernRun:    nil,
 	SpiderCavernRun:     nil,
 	EnduguRun:           nil,
+	UtilityRun:          nil,
 	GloveRun:            nil,
 	FireEyeRun:          nil,
 }
