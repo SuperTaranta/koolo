@@ -1345,6 +1345,16 @@ func (s *HttpServer) characterSettings(w http.ResponseWriter, r *http.Request) {
 		cfg.Game.Quests.RescueAnya = r.Form.Has("gameQuestsRescueAnya")
 		cfg.Game.Quests.KillAncients = r.Form.Has("gameQuestsKillAncients")
 
+		//Glove Run Options
+		cfg.Game.GloveRun.BowAndCrossbow2 = r.Form.Has("gameGloveRunBowAndCrossbow2")
+		cfg.Game.GloveRun.BowAndCrossbow3 = r.Form.Has("gameGloveRunBowAndCrossbow3")
+		cfg.Game.GloveRun.PassiveAndMagic2 = r.Form.Has("gameGloveRunPassiveAndMagic2")
+		cfg.Game.GloveRun.PassiveAndMagic3 = r.Form.Has("gameGloveRunPassiveAndMagic3")
+		cfg.Game.GloveRun.JavAndSpear2 = r.Form.Has("gameGloveRunJavAndSpear2")
+		cfg.Game.GloveRun.JavAndSpear3 = r.Form.Has("gameGloveRunJavAndSpear3")
+		cfg.Game.GloveRun.MartialArts2 = r.Form.Has("gameGloveRunMartialArts2")
+		cfg.Game.GloveRun.MartialArts3 = r.Form.Has("gameGloveRunMartialArts3")
+
 		cfg.Game.TerrorZone.FocusOnElitePacks = r.Form.Has("gameTerrorZoneFocusOnElitePacks")
 		cfg.Game.TerrorZone.SkipOtherRuns = r.Form.Has("gameTerrorZoneSkipOtherRuns")
 		cfg.Game.TerrorZone.OpenChests = r.Form.Has("gameTerrorZoneOpenChests")
