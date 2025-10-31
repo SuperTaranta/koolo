@@ -195,6 +195,7 @@ func MoveTo(dest data.Position, options ...MoveOption) error {
 		if utils.CalculateDistance(currentPosition, roundTripReferencePosition) <= roundTripMaxRadius {
 			if time.Since(roundTripCheckStartTime) > roundTripThreshold {
 				ctx.Logger.Warn("Player is doing round trips. Current area: [" + ctx.Data.PlayerUnit.Area.Area().Name + "]. Trying to path to Destination: [" + fmt.Sprintf("%d,%d", currentDest.X, currentDest.Y) + "]")
+				stillStuckNeedToClick(currentPosition)
 				return ErrPlayerRoundTrip
 			}
 		} else {
@@ -266,4 +267,28 @@ func MoveTo(dest data.Position, options ...MoveOption) error {
 		//Perform the movement
 		ctx.PathFinder.MoveThroughPath(path, walkDuration)
 	}
+}
+
+func stillStuckNeedToClick(currentPosition data.Position) {
+	ctx := context.Get()
+	var lastDestructibleAttemptTime time.Time
+
+	// Throttle stuck-click attempts to once every 30 seconds.
+	const stuckClickCooldown = 30 * time.Second
+	if !lastDestructibleAttemptTime.IsZero() && time.Since(lastDestructibleAttemptTime) < stuckClickCooldown {
+		ctx.Logger.Debug(fmt.Sprintf("Skipping stuck click; last attempt was %v ago.", time.Since(lastDestructibleAttemptTime)))
+		return
+	}
+	lastDestructibleAttemptTime = time.Now()
+
+	// Perform a single random left-click near the player to try to unstuck UI/state
+	px, py := ui.GameCoordsToScreenCords(currentPosition.X, currentPosition.Y)
+	seed := time.Now().UnixNano()
+	rx := int(seed%201) - 100       // offset -100..100
+	ry := int((seed/100)%201) - 100 // offset -100..100
+	cx := px + rx
+	cy := py + ry
+	ctx.Logger.Debug(fmt.Sprintf("Performing single random left click at screen coords (%d,%d).", cx, cy))
+	ctx.HID.Click(game.LeftButton, cx, cy)
+	utils.Sleep(50)
 }
