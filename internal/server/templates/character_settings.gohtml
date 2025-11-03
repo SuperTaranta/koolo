@@ -53,6 +53,7 @@
                         <option value="winddruid" {{ if eq .Config.Character.Class "winddruid" }}selected{{ end }}>Tornado Druid</option>
                         <option value="druid_leveling" {{ if eq .Config.Character.Class "druid_leveling" }}selected{{ end }}>Druid (Leveling)</option>
                         <option value="javazon" {{ if eq .Config.Character.Class "javazon" }}selected{{ end }}>Javazon</option>
+                        <option value="amazon_leveling" {{ if eq .Config.Character.Class "amazon_leveling" }}selected{{ end }}>Amazon (Leveling)</option>
                         <option value="berserker" {{ if eq .Config.Character.Class "berserker" }}selected{{ end }}>Berserk Barbarian</option>
                     </select>
                 </label>
@@ -80,6 +81,10 @@
                         <label>
                             <input type="checkbox" name="barbSkipPotionPickupInTravincal" {{ if .Config.Character.BerserkerBarb.SkipPotionPickupInTravincal }}checked{{ end }}/>
                             Skip potion pickup during Travincal
+                        </label>
+                        <label>
+                            <input type="checkbox" name="barbUseHowl" {{ if .Config.Character.BerserkerBarb.UseHowl }}checked{{ end }}/>
+                            Use Howl
                         </label>
                     </fieldset>
                 </div>
@@ -224,6 +229,15 @@
                     <label>
                         <input type="checkbox" name="packetCastingUseForTpInteraction" {{ if .Config.PacketCasting.UseForTpInteraction }}checked{{ end }}/>
                         Use packets for TP interaction
+                    </label>
+                    <label style="visibility: hidden;">
+                        <!-- Spacer for grid alignment -->
+                    </label>
+                </fieldset>
+                <fieldset class="grid">
+                    <label>
+                        <input type="checkbox" name="packetCastingUseForEntranceInteraction" {{ if .Config.PacketCasting.UseForEntranceInteraction }}checked{{ end }}/>
+                        Use packets for entrance interaction
                     </label>
                     <label style="visibility: hidden;">
                         <!-- Spacer for grid alignment -->
